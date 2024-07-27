@@ -24,37 +24,45 @@ def check_missing(tile: str):
         raise Missing(msg=f"Missing book {tile}")
 
 
+def check_duplicate(name: str):
+    if find(name):
+        raise Duplicate(msg=f"Duplicate book {name}")
+
+
 def get_all() -> list[Book]:
     """Return all books"""
     return _books
 
 
-def get_one(title: str) -> Book | None:
+def get_one(name: str) -> Book:
     """Return one book"""
     for _book in _books:
-        if _book.title == title:
+        if _book.name == name:
             return _book
-    return None
+    raise Missing(msg=f"Book {name} not found")
 
 
-# The following are nonfunctional for now,
-# so they just act like they work, without modifying
-# the actual fake _books list:
 def create(book: Book) -> Book:
     """Add a book"""
+    check_duplicate(book.name)
+    _books.append(book)
     return book
 
 
-def modify(id, book: Book) -> Book:
-    """Partially modify a book"""
-    return book
+def modify(name, book: Book) -> Book:
+    """modify a book"""
+    check_missing(name)
+    for _book in _books:
+        if _book.name == name:
+            _books.remove(_book)
+            _books.append(book)
+            return book
 
 
-def replace(id, book: Book) -> Book:
-    """Completely replace a book"""
-    return book
-
-
-def delete(tile: str):
-    """Delete a book; return None if it existed"""
-    return None
+def delete(name: str):
+    """Delete a book"""
+    check_missing(name)
+    for _book in _books:
+        if _book.name == name:
+            _books.remove(_book)
+            return True

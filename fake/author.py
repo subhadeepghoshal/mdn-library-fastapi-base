@@ -11,6 +11,7 @@ _authors = [
            year_of_death=""),
 ]
 
+
 def find(title: str) -> Author | None:
     for c in _authors:
         if c.title == title:
@@ -23,37 +24,45 @@ def check_missing(tile: str):
         raise Missing(msg=f"Missing author {tile}")
 
 
+def check_duplicate(name: str):
+    if find(name):
+        raise Duplicate(msg=f"Duplicate author {name}")
+
+
 def get_all() -> list[Author]:
     """Return all authors"""
     return _authors
 
 
-def get_one(tile: str) -> Author | None:
+def get_one(name: str) -> Author:
     """Return one author"""
     for _author in _authors:
-        if _author.tile == tile:
+        if _author.name == name:
             return _author
-    return None
+    raise Missing(msg=f"Author {name} not found")
 
 
-# The following are nonfunctional for now,
-# so they just act like they work, without modifying
-# the actual fake _authors list:
 def create(author: Author) -> Author:
     """Add a author"""
+    check_duplicate(author.name)
+    _authors.append(author)
     return author
 
 
-def modify(author: Author) -> Author:
-    """Partially modify a author"""
-    return author
+def modify(name, author: Author) -> Author:
+    """modify a author"""
+    check_missing(name)
+    for _author in _authors:
+        if _author.name == name:
+            _authors.remove(_author)
+            _authors.append(author)
+            return author
 
 
-def replace(author: Author) -> Author:
-    """Completely replace a author"""
-    return author
-
-
-def delete(tile: str):
-    """Delete a author; return None if it existed"""
-    return None
+def delete(name: str):
+    """Delete a author"""
+    check_missing(name)
+    for _author in _authors:
+        if _author.name == name:
+            _authors.remove(_author)
+            return True

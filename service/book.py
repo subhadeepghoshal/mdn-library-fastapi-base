@@ -1,5 +1,10 @@
+import os
 from model.book import Book
-import fake.book as data
+
+if os.getenv("CRYPTID_UNIT_TEST"):
+    from fake import book as data
+else:
+    from data import book as data
 
 
 def get_all() -> list[Book]:
@@ -14,13 +19,9 @@ def create(book: Book) -> Book:
     return data.create(book)
 
 
-def replace(id, book: Book) -> Book:
-    return data.replace(id, book)
+def modify(title, book: Book) -> Book:
+    return data.modify(title, book)
 
 
-def modify(id, book: Book) -> Book:
-    return data.modify(id, book)
-
-
-def delete(id, book: Book) -> bool:
-    return data.delete(id)
+def delete(title) -> bool:
+    return data.delete(title)

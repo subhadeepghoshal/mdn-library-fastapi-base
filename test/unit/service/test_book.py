@@ -1,3 +1,6 @@
+import pytest
+
+from error import Missing
 from model.book import Book
 from service import book as code
 
@@ -17,5 +20,5 @@ def test_get_exists():
 
 
 def test_get_missing():
-    resp = code.get_one("Gilgamesh")
-    assert resp is None
+    with pytest.raises(Missing):
+        resp = code.get_one("Gilgamesh")
