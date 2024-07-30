@@ -12,16 +12,16 @@ _authors = [
 ]
 
 
-def find(title: str) -> Author | None:
+def find(name: str) -> Author | None:
     for c in _authors:
-        if c.title == title:
+        if c.name == name:
             return c
     return None
 
 
-def check_missing(tile: str):
-    if not find(tile):
-        raise Missing(msg=f"Missing author {tile}")
+def check_missing(name: str):
+    if not find(name):
+        raise Missing(msg=f"Missing author {name}")
 
 
 def check_duplicate(name: str):

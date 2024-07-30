@@ -19,14 +19,14 @@ def find(title: str) -> Book | None:
     return None
 
 
-def check_missing(tile: str):
-    if not find(tile):
-        raise Missing(msg=f"Missing book {tile}")
+def check_missing(title: str):
+    if not find(title):
+        raise Missing(msg=f"Missing book {title}")
 
 
-def check_duplicate(name: str):
-    if find(name):
-        raise Duplicate(msg=f"Duplicate book {name}")
+def check_duplicate(title: str):
+    if find(title):
+        raise Duplicate(msg=f"Duplicate book {title}")
 
 
 def get_all() -> list[Book]:
@@ -34,35 +34,35 @@ def get_all() -> list[Book]:
     return _books
 
 
-def get_one(name: str) -> Book:
+def get_one(title: str) -> Book:
     """Return one book"""
     for _book in _books:
-        if _book.name == name:
+        if _book.title == title:
             return _book
-    raise Missing(msg=f"Book {name} not found")
+    raise Missing(msg=f"Book {title} not found")
 
 
 def create(book: Book) -> Book:
     """Add a book"""
-    check_duplicate(book.name)
+    check_duplicate(book.title)
     _books.append(book)
     return book
 
 
-def modify(name, book: Book) -> Book:
+def modify(title, book: Book) -> Book:
     """modify a book"""
-    check_missing(name)
+    check_missing(title)
     for _book in _books:
-        if _book.name == name:
+        if _book.title == title:
             _books.remove(_book)
             _books.append(book)
             return book
 
 
-def delete(name: str):
+def delete(title: str):
     """Delete a book"""
-    check_missing(name)
+    check_missing(title)
     for _book in _books:
-        if _book.name == name:
+        if _book.title == title:
             _books.remove(_book)
             return True
