@@ -1,30 +1,15 @@
 """Initialize SQLite database"""
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-from pathlib import Path
-from sqlite3 import connect, Connection, Cursor, IntegrityError
+import motor.motor_asyncio
 
-conn: Connection | None = None
-curs: Cursor | None = None
+db: any
 
-
-def get_db(name: str | None = None, reset: bool = False):
-    """Connect to SQLite database file"""
-    global conn, curs
-    if conn:
-        if not reset:
-            return
-        conn = None
-    if not name:
-        name = os.getenv("LIBRARY_SQLITE_DB")
-        top_dir = Path(__file__).resolve().parents[1]  # repo top
-        db_dir = top_dir / "db"
-        db_name = "library.db"
-        db_path = str(db_dir / db_name)
-        name = db_path
-        #print(name)
-    conn = connect(name, check_same_thread=False)
-    curs = conn.cursor()
-
+def get_db():
+    global db
+    client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
+    db = client.library
 
 get_db()
