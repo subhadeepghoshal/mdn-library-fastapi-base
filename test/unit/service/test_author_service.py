@@ -16,15 +16,16 @@ def sample() -> Author:
 def fakes() -> list[Author]:
     return code.get_all()
 
-
-def test_create(sample):
-    resp = code.create(sample)
+@pytest.mark.asyncio(scope="session")
+async def test_create(sample):
+    resp = await code.create(sample)
     assert resp == sample
 
 
-def test_create_duplicate(fakes):
+@pytest.mark.asyncio(scope="session")
+async def test_create_duplicate(fakes):
     with pytest.raises(Duplicate) as exc:
-        _ = code.create(fakes[0])
+        _ = await code.create(fakes[0])
 
 
 def test_get_one(fakes):

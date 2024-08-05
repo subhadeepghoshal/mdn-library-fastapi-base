@@ -42,7 +42,7 @@ def get_one(name: str) -> Author:
     raise Missing(msg=f"Author {name} not found")
 
 
-def create(author: Author) -> Author:
+async def create(author: Author) -> Author:
     """Add a author"""
     check_duplicate(author.name)
     _authors.append(author)

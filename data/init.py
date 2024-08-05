@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import motor.motor_asyncio
+import certifi
 
 db: any
 
