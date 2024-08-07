@@ -1,10 +1,9 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from model.author import Author
 from main import app
 
-client = TestClient(app)
-
+client = AsyncClient(app=app, base_url="http://127.0.0.1:9000/")
 
 @pytest.fixture(scope="session")
 def sample() -> Author:
@@ -12,43 +11,51 @@ def sample() -> Author:
                   year_of_birth="1908",
                   year_of_death="1974")
 
-
-def test_create(sample):
-    resp = client.post("/author", json=sample.model_dump())
+@pytest.mark.asyncio(scope="session")
+async def test_create(sample):
+    async with AsyncClient(app=app, base_url="http://127.0.0.1:9000/") as ac:
+        resp = await ac.post("/author/",json=sample.model_dump())
     assert resp.status_code == 201
 
-
-def test_create_duplicate(sample):
-    resp = client.post("/author", json=sample.model_dump())
+@pytest.mark.asyncio(scope="session")
+async def test_create_duplicate(sample):
+    resp = await client.post("/author/", json=sample.model_dump())
     assert resp.status_code == 409
 
-
-def test_get_one(sample):
-    resp = client.get(f"/author/{sample.name}")
-    assert resp.json() == sample.model_dump()
-
-
-def test_get_one_missing():
-    resp = client.get("/author/bobcat")
+@pytest.mark.asyncio(scope="session")
+async def test_get_one(sample):
+    resp = await client.get(f"/author/{sample.name}")
+    resp_json = resp.json()
+    resp_json.pop("_id")
+    input = sample.model_dump()
+    input.pop("id")
+    assert resp_json == input
+@pytest.mark.asyncio(scope="session")
+async def test_get_one_missing():
+    resp = await client.get("/author/bobcat")
     assert resp.status_code == 404
 
+@pytest.mark.asyncio(scope="session")
+async def test_modify(sample):
+    resp = await client.patch(f"/author/{sample.name}", json=sample.model_dump())
+    resp_json = resp.json()
+    resp_json.pop("_id")
+    input = sample.model_dump()
+    input.pop("id")
+    assert resp_json == input
 
-def test_modify(sample):
-    resp = client.patch(f"/author/{sample.name}", json=sample.model_dump())
-    assert resp.json() == sample.model_dump()
-
-
-def test_modify_missing(sample):
-    resp = client.patch("/author/alismunro", json=sample.model_dump())
+@pytest.mark.asyncio(scope="session")
+async def test_modify_missing(sample):
+    resp = await client.patch("/author/alismunro", json=sample.model_dump())
     assert resp.status_code == 404
 
-
-def test_delete(sample):
-    resp = client.delete(f"/author/{sample.name}")
+@pytest.mark.asyncio(scope="session")
+async def test_delete(sample):
+    resp = await client.delete(f"/author/{sample.name}")
     assert resp.status_code == 200
     assert resp.json() is True
 
-
-def test_delete_missing(sample):
-    resp = client.delete(f"/author/{sample.name}")
+@pytest.mark.asyncio(scope="session")
+async def test_delete_missing(sample):
+    resp = await client.delete(f"/author/{sample.name}")
     assert resp.status_code == 404

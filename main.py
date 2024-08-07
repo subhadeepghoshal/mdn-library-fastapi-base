@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from web import book, author
+from web import author
 
 app = FastAPI()
-app.include_router(book.router)
+#app.include_router(book.router)
 app.include_router(author.router)
 
 if __name__ == "__main__":

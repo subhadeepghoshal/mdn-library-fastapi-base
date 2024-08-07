@@ -3,10 +3,12 @@ from error import Missing, Duplicate
 
 # fake data, until we use a real database and SQL
 _authors = [
-    Author(name="Chris McManus",
+    Author(_id="100",
+           name="Chris McManus",
            year_of_birth="1950",
            year_of_death=""),
-    Author(name="Mahmood Mamdani",
+    Author(_id=101,
+           name="Mahmood Mamdani",
            year_of_birth="1946",
            year_of_death=""),
 ]
@@ -34,32 +36,32 @@ def get_all() -> list[Author]:
     return _authors
 
 
-def get_one(name: str) -> Author:
+async def get_one(name: str) -> dict:
     """Return one author"""
     for _author in _authors:
         if _author.name == name:
-            return _author
+            return _author.model_dump()
     raise Missing(msg=f"Author {name} not found")
 
 
-async def create(author: Author) -> Author:
+async def create(author: Author) -> dict:
     """Add a author"""
     check_duplicate(author.name)
     _authors.append(author)
-    return author
+    return author.model_dump()
 
 
-def modify(name, author: Author) -> Author:
+async def modify(name, author: Author) -> dict:
     """modify a author"""
     check_missing(name)
     for _author in _authors:
         if _author.name == name:
             _authors.remove(_author)
             _authors.append(author)
-            return author
+            return author.model_dump()
 
 
-def delete(name: str):
+async def delete(name: str):
     """Delete a author"""
     check_missing(name)
     for _author in _authors:

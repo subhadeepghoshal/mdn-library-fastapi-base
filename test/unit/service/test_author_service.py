@@ -1,10 +1,12 @@
 import os
-os.environ["CRYPTID_UNIT_TEST"] = "true"
+
+os.environ["CRYPTID_UNIT_TEST"] = "True"
 
 import pytest
-from model.author import Author
+from model.author import Author,AuthorCollection
 from service import author as code
 from error import Missing, Duplicate
+
 
 @pytest.fixture
 def sample() -> Author:
@@ -12,47 +14,65 @@ def sample() -> Author:
                   year_of_birth="1908",
                   year_of_death="1974")
 
+
 @pytest.fixture
-def fakes() -> list[Author]:
-    return code.get_all()
+async def fakes() -> list[Author]:
+    return await code.get_all()
+
 
 @pytest.mark.asyncio(scope="session")
 async def test_create(sample):
     resp = await code.create(sample)
-    assert resp == sample
+    input_author = sample.model_dump()
+    input_author.pop("id")
+    resp.pop("_id") if "_id" in resp else resp.pop("id")
+    assert resp == input_author
 
 
 @pytest.mark.asyncio(scope="session")
-async def test_create_duplicate(fakes):
-    with pytest.raises(Duplicate) as exc:
-        _ = await code.create(fakes[0])
+async def test_create_duplicate(sample):
+    with pytest.raises(Duplicate):
+        await code.create(sample)
 
 
-def test_get_one(fakes):
-    resp = code.get_one(fakes[0].name)
-    assert resp == fakes[0]
+@pytest.mark.asyncio(scope="session")
+async def test_get_one(sample):
+    resp = await code.get_one(sample.name)
+    input_author = sample.model_dump()
+    input_author.pop("id")
+    resp.pop("_id") if "_id" in resp else resp.pop("id")
+    assert resp == input_author
 
 
-def test_get_one_missing():
+@pytest.mark.asyncio(scope="session")
+async def test_get_one_missing():
     with pytest.raises(Missing):
-        resp = code.get_one("Hawking")
+        await code.get_one("Hawking")
 
 
-def test_modify(sample):
+@pytest.mark.asyncio(scope="session")
+async def test_modify(sample):
     sample.year_of_birth = "1900"
-    assert code.modify(sample.name, sample) == sample
+    resp = await code.modify(sample.name, sample)
+    input_author = sample.model_dump()
+    input_author.pop("id")
+    resp.pop("_id") if "_id" in resp else resp.pop("id")
+    assert resp == input_author
 
 
-def test_modify_missing(sample):
+@pytest.mark.asyncio(scope="session")
+async def test_modify_missing(sample):
     with pytest.raises(Missing) as exc:
-        resp = code.modify("Mein Kamf", sample)
+        await code.modify("Mein Kamf", sample)
 
 
-def test_delete(sample):
-    resp = code.delete(sample.name)
+@pytest.mark.asyncio(scope="session")
+async def test_delete(sample):
+    await code.delete(sample.name)
     with pytest.raises(Missing):
-        code.get_one(sample.name)
+        await code.get_one(sample.name)
 
-def test_delete_missing():
+@pytest.mark.asyncio(scope="session")
+async def test_delete_missing():
     with pytest.raises(Missing):
-        _ = code.delete("Mein Kamf")
+        await code.delete("Mein Kamf")

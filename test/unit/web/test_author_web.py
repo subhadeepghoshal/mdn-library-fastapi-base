@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 import pytest
 import os
-os.environ["CRYPTID_UNIT_TEST"] = "true"
+#os.environ["CRYPTID_UNIT_TEST"] = "true"
 from model.author import Author
 from web import author
 from error import Missing, Duplicate
@@ -9,14 +9,9 @@ from error import Missing, Duplicate
 
 @pytest.fixture
 def sample() -> Author:
-    return Author(name="Jaccob Bronowsky",
+    return Author(name="Jacob Bronowsky",
                   year_of_birth="1908",
                   year_of_death="1974")
-
-
-@pytest.fixture
-def fakes() -> list[Author]:
-    return author.get_all()
 
 
 def assert_duplicate(exc):
@@ -29,41 +24,59 @@ def assert_missing(exc):
     assert "Missing" in exc.value.msg
 
 
-def test_create(sample):
-    assert author.create(sample) == sample
+@pytest.mark.asyncio(scope="session")
+async def test_create(sample):
+    resp = await author.create(sample)
+    input_author = sample.model_dump()
+    input_author.pop("id")
+    resp.pop("_id") if "_id" in resp else resp.pop("id")
+    assert resp == input_author
 
 
-def test_create_duplicate(fakes):
+@pytest.mark.asyncio(scope="session")
+async def test_create_duplicate(sample):
     with pytest.raises(HTTPException) as exc:
-        author.create(fakes[0])
+        await author.create(sample)
         assert_duplicate(exc)
 
 
-def test_get_one(fakes):
-    assert author.get_one(fakes[0].name) == fakes[0]
+@pytest.mark.asyncio(scope="session")
+async def test_get_one(sample):
+    resp = await author.get_one(sample.name)
+    input_author = sample.model_dump()
+    input_author.pop("id")
+    resp.pop("_id") if "_id" in resp else resp.pop("id")
+    assert resp == input_author
 
 
-def test_get_one_missing():
+@pytest.mark.asyncio(scope="session")
+async def test_get_one_missing():
     with pytest.raises(HTTPException) as exc:
-        author.get_one("weinberg")
+        await author.get_one("weinberg")
         assert_missing(exc)
 
 
-def test_modify(fakes, sample):
-    assert author.modify(fakes[0].name, sample) == sample
+@pytest.mark.asyncio(scope="session")
+async def test_modify(sample):
+    sample.year_of_birth = "29/02/2002"
+    resp = await author.modify(sample.name, sample)
+    input_author = sample.model_dump()
+    input_author.pop("id")
+    resp.pop("_id") if "_id" in resp else resp.pop("id")
+    assert resp == input_author
 
-
-def test_modify_missing(sample):
+@pytest.mark.asyncio(scope="session")
+async def test_modify_missing(sample):
     with pytest.raises(HTTPException) as exc:
-        author.modify("weinberg", sample)
+        await author.modify("weinberg", sample)
         assert_missing(exc)
 
+@pytest.mark.asyncio(scope="session")
+async def test_delete(sample):
+    assert await author.delete(sample.name) is True
 
-def test_delete(fakes):
-    assert author.delete(fakes[0].name) is True
-
-
-def test_delete_missing(sample):
+@pytest.mark.asyncio(scope="session")
+async def test_delete_missing(sample):
     with pytest.raises(HTTPException) as exc:
-        author.delete("weinberg")
+        await author.delete("weinberg")
         assert_missing(exc)

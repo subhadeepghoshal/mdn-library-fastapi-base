@@ -20,7 +20,7 @@ def model_to_dict(author: Author) -> dict:
     return author.model_dump()
 
 
-async def create(author: Author):
+async def create(author: Author) -> Author:
     if await author_collection.find_one({"name": author.name}):
         raise Duplicate(msg=f"Author {author.name} already exists")
 
@@ -40,8 +40,9 @@ async def get_one(name: str) -> Author:
     raise Missing(msg=f"Author {name} not found")
 
 
-async def get_all() -> AuthorCollection:
-    return AuthorCollection(authors=await author_collection.find().to_list(1000))
+async def get_all() -> list[Author]:
+    authors = await author_collection.find().to_list(1000)
+    return authors
 
 
 #
