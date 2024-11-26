@@ -7,21 +7,20 @@ else:
     from data import book as data
 
 
-def get_all() -> list[Book]:
-    return data.get_all()
+async def get_all() -> list[Book]:
+    return await data.get_all()
+
+async def get_one(title: str) -> Book | None:
+    return await data.get_one(title)
 
 
-def get_one(title: str) -> Book | None:
-    return data.get_one(title)
+async def create(book: Book) -> Book:
+    return await data.create(book)
 
 
-def create(book: Book) -> Book:
-    return data.create(book)
+async def modify(title, book: Book) -> Book:
+    return await data.modify(title, book)
 
 
-def modify(title, book: Book) -> Book:
-    return data.modify(title, book)
-
-
-def delete(title) -> bool:
-    return data.delete(title)
+async def delete(title) -> bool:
+    return await data.delete(title)

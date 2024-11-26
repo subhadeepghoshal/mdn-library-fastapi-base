@@ -16,38 +16,38 @@ router = APIRouter(prefix="/book")
 
 
 @router.get("/")
-def get_all() -> list[Book]:
-    return service.get_all()
-
+async def get_all() -> list[Book]:
+    books = await service.get_all()
+    return books
 
 @router.get("/{title}")
-def get_one(title) -> Book:
+async def get_one(title) -> Book:
     try:
-        return service.get_one(title)
+        return await service.get_one(title)
     except Missing as exc:
         raise HTTPException(status_code=404, detail=exc.msg)
 
 
 # all the remaining endpoints do nothing yet:
 @router.post("/", status_code=201)
-def create(book: Book) -> Book:
+async def create(book: Book) -> Book:
     try:
-        return service.create(book)
+        return await service.create(book)
     except Duplicate as exc:
         raise HTTPException(status_code=409, detail=exc.msg)
 
 
 @router.patch("/{title}")
-def modify(title: str, book: Book) -> Book:
+async def modify(title: str, book: Book) -> Book:
     try:
-        return service.modify(title, book)
+        return await service.modify(title, book)
     except Missing as exc:
         raise HTTPException(status_code=404, detail=exc.msg)
 
 
 @router.delete("/{title}")
-def delete(title: str):
+async def delete(title: str):
     try:
-        return service.delete(title)
+        return await service.delete(title)
     except Missing as exc:
         raise HTTPException(status_code=404, detail=exc.msg)
