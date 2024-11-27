@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 
-from model.book import Book
+from model.book import Book, UpdateBook
 
 if os.getenv("CRYPTID_UNIT_TEST"):
     from fake import book as service
@@ -38,8 +38,9 @@ async def create(book: Book) -> Book:
 
 
 @router.patch("/{title}")
-async def modify(title: str, book: Book) -> Book:
+async def modify(title: str, book: UpdateBook) -> Book:
     try:
+        print("100")
         return await service.modify(title, book)
     except Missing as exc:
         raise HTTPException(status_code=404, detail=exc.msg)

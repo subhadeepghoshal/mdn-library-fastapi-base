@@ -31,9 +31,9 @@ class BookCollection(BaseModel):
     authors: List[Book]
 
 class UpdateBook(BaseModel):
-    Title: Optional[str] = None
-    Summary: Optional[str] = None
-    Author: Optional[str] = None
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    author: Optional[str] = None
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         json_encoders={ObjectId: str},

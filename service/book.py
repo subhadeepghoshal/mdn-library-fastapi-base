@@ -1,5 +1,5 @@
 import os
-from model.book import Book
+from model.book import Book,UpdateBook
 
 if os.getenv("CRYPTID_UNIT_TEST"):
     from fake import book as data
@@ -18,7 +18,8 @@ async def create(book: Book) -> Book:
     return await data.create(book)
 
 
-async def modify(title, book: Book) -> Book:
+async def modify(title, book: UpdateBook) -> Book:
+    print("200")
     return await data.modify(title, book)
 
 
