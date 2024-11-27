@@ -4,15 +4,15 @@ from bson import ObjectId
 from pymongo import ReturnDocument
 
 from error import Duplicate, Missing
-from model.book import Book, UpdateBook
+from model.book import Book, UpdateBook, LanguageEnum
 from .init import db
 
 book_collection = db.get_collection("books")
 
 
 def row_to_model(row: tuple) -> Book:
-    title, summary, author = row
-    return Book(title=title, summary=summary, author=author)
+    title, language, summary, author = row
+    return Book(title=title, language=language, summary=summary, author=author)
 
 
 def model_to_dict(book: Book) -> dict:
@@ -26,8 +26,12 @@ async def get_one(title: str) -> Book:
     raise Missing(msg=f"Book {title} not found")
 
 
-async def get_all() -> list[Book]:
-    books = await book_collection.find().to_list(1000)
+async def get_all(language:LanguageEnum) -> list[Book]:
+    if language is None:
+        books = await book_collection.find().to_list(1000)
+    else:
+        books = await book_collection.find({'language':language}).to_list(1000)
+
     return books
 
 

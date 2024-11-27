@@ -1,4 +1,5 @@
 from typing import Optional, List
+from enum import Enum, IntEnum
 
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.functional_validators import BeforeValidator
@@ -7,10 +8,14 @@ from typing_extensions import Annotated
 PyObjectId = Annotated[str, BeforeValidator(str)]
 from bson import ObjectId
 
+class LanguageEnum(str, Enum):
+    ENGLISH = 'English'
+    BENGALI = 'Bengali'
 
 class Book(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     title: str = Field(...)
+    language:LanguageEnum = Field(...)
     summary: str = Field(...)
     author: str = Field(...)
     model_config = ConfigDict(
@@ -19,6 +24,7 @@ class Book(BaseModel):
         json_schema_extra={
             "example": {
                 "title": "Rise and Fall of 3rd Chimpanzee",
+                "language": "English",
                 "summary": "A comprehensive study of human behaviour and its origins. \
                             This book analyses the relationship that human beings have \
                             with their surroundings, along with the cultural aspects involved",
